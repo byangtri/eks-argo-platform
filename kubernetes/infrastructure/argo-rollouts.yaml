@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: argoproj
   name: argo-rollouts
-  namespace: argocd
+  namespace: default
 spec:
   destination:
     namespace: argo-rollouts

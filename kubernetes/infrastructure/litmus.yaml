@@ -4,7 +4,7 @@ metadata:
   labels:
     app.kubernetes.io/instance: argoproj
   name: litmus
-  namespace: argocd
+  namespace: default
 spec:
   destination:
     namespace: litmus
