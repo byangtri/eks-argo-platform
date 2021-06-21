@@ -1,0 +1,197 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: mgr-workflow-
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+  namespace: litmus
+spec:
+  entrypoint: mgr-workflow
+  # podGC:  # Pod GC provides the ability to delete pods automatically without deleting the workflow.
+    # OnWorkflowSuccess - delete pods when workflow is successful
+    # strategy: OnWorkflowSuccess
+  serviceAccountName: argo-chaos
+  templates:
+    - name: mgr-workflow
+      steps:
+        - - name: run-benchmark
+            template: run-benchmark
+          - name: run-chaos
+            template: run-chaos
+        - - name: revert-chaos
+            template: revert-chaos
+        # - - name: run-api-test-1
+        #     template: run-api-test-1
+        #   - name: run-api-test-2
+        #     template: run-api-test-2
+        #   - name: run-api-test-3
+        #     template: run-api-test-3
+        #   - name: run-api-test-4
+        #     template: run-api-test-4
+        - - name: whalesay
+            template: whalesay
+    - name: whalesay
+      container:
+        image: docker/whalesay:latest
+        command: [cowsay]
+        args: ["hello world"]
+    - name: run-api-test-1
+      inputs:
+        artifacts:
+        - name: run-api-test-1
+          path: /src
+          git:
+            repo: https://git.qasymphony.com/qtest/qtest-postman.git
+            revision: "master"
+            usernameSecret:
+              name: gitlab-creds
+              key: username
+            passwordSecret:
+              name: gitlab-creds
+              key: password
+      container:
+        image: public.ecr.aws/b8y7a2x6/argo-agent:ubuntu.2
+        command: [sh, -c]
+        args: ["./postman/dev-run.sh smoketest1"]
+        workingDir: /src
+    - name: run-api-test-2
+      inputs:
+        artifacts:
+        - name: run-api-test-2
+          path: /src
+          git:
+            repo: https://git.qasymphony.com/qtest/qtest-postman.git
+            revision: "master"
+            usernameSecret:
+              name: gitlab-creds
+              key: username
+            passwordSecret:
+              name: gitlab-creds
+              key: password
+      container:
+        image: public.ecr.aws/b8y7a2x6/argo-agent:ubuntu.2
+        command: [sh, -c]
+        args: ["./postman/dev-run.sh smoketest2"]
+        workingDir: /src
+    - name: run-api-test-3
+      inputs:
+        artifacts:
+        - name: run-api-test-3
+          path: /src
+          git:
+            repo: https://git.qasymphony.com/qtest/qtest-postman.git
+            revision: "master"
+            usernameSecret:
+              name: gitlab-creds
+              key: username
+            passwordSecret:
+              name: gitlab-creds
+              key: password
+      container:
+        image: public.ecr.aws/b8y7a2x6/argo-agent:ubuntu.2
+        command: [sh, -c]
+        args: ["./postman/dev-run.sh smoketest3"]
+        workingDir: /src
+    - name: run-api-test-4
+      inputs:
+        artifacts:
+        - name: run-api-test-4
+          path: /src
+          git:
+            repo: https://git.qasymphony.com/qtest/qtest-postman.git
+            revision: "master"
+            usernameSecret:
+              name: gitlab-creds
+              key: username
+            passwordSecret:
+              name: gitlab-creds
+              key: password
+      container:
+        image: public.ecr.aws/b8y7a2x6/argo-agent:ubuntu.2
+        command: [sh, -c]
+        args: ["./postman/dev-run.sh smoketest4"]
+        workingDir: /src
+    - name: run-chaos
+      inputs:
+        artifacts:
+        - name: run-chaos
+          path: /tmp/chaosengine.yaml
+          raw:
+            data: |
+              apiVersion: litmuschaos.io/v1alpha1
+              kind: ChaosEngine
+              metadata:
+                name: qtest-mgr-pod-delete-chaos
+                namespace: litmus
+              spec:
+                appinfo:
+                  appns: qtest
+                  applabel: "app=qtest-mgr"
+                  appkind: rollout
+                jobCleanUpPolicy: retain
+                monitoring: false
+                annotationCheck: 'true'
+                engineState: 'active'
+                chaosServiceAccount: litmus-admin
+                experiments:
+                  - name: pod-delete
+                    spec:
+                      components:
+                        env:
+                          - name: TOTAL_CHAOS_DURATION
+                            value: "30"
+                          - name: CHAOS_INTERVAL
+                            value: "10"
+                          - name: FORCE
+                            value: "false"
+      container:
+        image: lachlanevenson/k8s-kubectl
+        command: [sh, -c]
+        args: ['kubectl apply -f /tmp/chaosengine.yaml -n litmus | echo "sleeping for 120s" | sleep 120 ']
+
+    - name: run-benchmark
+      inputs:
+        artifacts:
+        - name: run-benchmark
+          path: /tmp/bench.yaml
+          raw:
+            data: |
+              apiVersion: batch/v1
+              kind: Job
+              metadata:
+                labels:
+                  app: qtest-mgr-bench
+                generateName: qtest-mgr-bench-
+              spec:
+                template:
+                  metadata:
+                    labels:
+                      app: qtest-mgr-bench
+                  spec:
+                    restartPolicy: Never
+                    containers:
+                    - args:
+                      - -c
+                      - /go/bin/main -r -c10 -t${BENCHMARK_DURATION} -n 10000000 http://${qtest-mgr_SVC_NAME}:${qtest-mgr_PORT_NUM}/; exit 0
+                      command:
+                      - /bin/sh
+                      env:
+                        - name: qtest-mgr_SVC_NAME
+                          value: "qtest-mgr.default.svc.cluster.local"
+                        - name: qtest-mgr_PORT_NUM
+                          value: "80"
+                        - name: BENCHMARK_DURATION
+                          value: "300"
+                      image: devth/alpine-bench
+                      imagePullPolicy: Always
+                      name: qtest-mgr-bench
+      container:
+        image: lachlanevenson/k8s-kubectl
+        command: [sh, -c]
+        args: ['kubectl create -f /tmp/bench.yaml -n qtest']
+
+    - name: revert-chaos
+      container:
+        image: lachlanevenson/k8s-kubectl
+        command: [sh, -c]
+        args: [' sleep 20 | kubectl delete chaosengine qtest-mgr-pod-delete-chaos -n litmus']

@@ -1,0 +1,135 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: qtest-mgr-dev
+  namespace: argocd
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: {{ .Values.applications.eksdev1.namespace }}
+    server: {{ .Values.clusters.stage }}
+  project: {{ .Values.project }}
+  source:
+    chart: {{ .Values.applications.eksdev1.chart }}
+    repoURL: {{ .Values.qtest.chart }}
+    targetRevision: "*"
+    helm:
+      values: |
+        rollouts:
+          enabled: true
+        deployments:
+          enabled: false
+        annotations:
+          litmuschaos.io/chaos: "true"
+        podAnnotations:
+          df.k8-app.name: "qtest-mgr-app"
+          df.k8-app.registration/inject: "enabled"
+          app-image/repo-details: "242129367204.dkr.ecr.us-east-1.amazonaws.com/qtestmgr:23"
+          df.k8-app.run.token/runtoken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyaWQiOiIwZWM5Njc4Yy0xOWVjLTQyYjAtYjg4Yi00NGU4NTQ4NzRmYjkiLCJ0b2tlbmlkIjoiNWU2OGM4ZWUtOTIyNi00MTQ0LWJjZjYtZjRhYTFhYmUwZWQ2Iiwic3ViZG9tYWluIjoiZGYiLCJjdXN0b21lcmlkIjoiNTczMThmYzEtZjJjNi00NzIzLWI5ZTItNmE4M2M3NDg5OWE5IiwidXNlcmxldmVsIjoiQ1VTVE9NRVIiLCJyb2xlaWQiOiI4ZDVjMjAwNS1hZTA0LTRlNzItOGE1ZC1mZjExM2RhMmJiZjAiLCJyb2xlbmFtZSI6IkNfQURNSU4iLCJ0b2tlbl90eXBlIjoiREZfUlVOX1RPS0VOIiwiZXhwIjoxNjU1NDk5OTMyLCJpYXQiOjE2MjM5NjM5MzIsIm5iZiI6MTYyMzk2MzkzMiwicG9ydGFsVVJMIjoiZWMyLTU0LTE3My0yMDctNTcuY29tcHV0ZS0xLmFtYXpvbmF3cy5jb20iLCJjdXN0b21lclBvcnRhbFVSTCI6ImRmLmVjMi01NC0xNzMtMjA3LTU3LmNvbXB1dGUtMS5hbWF6b25hd3MuY29tIiwicG9ydGFsQ0EiOiJNSUlGd0RDQ0E2aWdBd0lCQWdJVUpRVFc5bDJlMGIyQ3VvbXJRUjd0K3hHa2U2WXdEUVlKS29aSWh2Y05BUUVMXG5CUUF3YVRFTE1Ba0dBMVVFQmhNQ1ZWTXhFekFSQmdOVkJBZ01Da05oYkdsbWIzSnVhV0V4RVRBUEJnTlZCQWNNXG5DRk5oYmlCS2IzTmxNUk13RVFZRFZRUUtEQXBFWldWd1JtRmpkRzl5TVIwd0d3WURWUVFEREJSRVpXVndSbUZqXG5kRzl5SUZCdmNuUmhiQ0JEUVRBZUZ3MHlNVEExTVRneE56VXpNREJhRncwek1UQTFNVFl4TnpVek1EQmFNR2t4XG5DekFKQmdOVkJBWVRBbFZUTVJNd0VRWURWUVFJREFwRFlXeHBabTl5Ym1saE1SRXdEd1lEVlFRSERBaFRZVzRnXG5TbTl6WlRFVE1CRUdBMVVFQ2d3S1JHVmxjRVpoWTNSdmNqRWRNQnNHQTFVRUF3d1VSR1ZsY0VaaFkzUnZjaUJRXG5iM0owWVd3Z1EwRXdnZ0lpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElDRHdBd2dnSUtBb0lDQVFEWjdVbWVleHN1XG5kMURoTVVCdnB6Y0x5L1MwVndwUUZJUXNKamR3ZDR2b3piZGF4cm0yRTZmdmp2eXBERkJCMll2dG9XQm1VY3RJXG5wblUvT0FibjI0RzhnZkJRSDJyK21lbjh1N0xCYXRRU0F3YVFlbzZ1OTRIaUtHcEpUUnZ1ZGxjcUJmWVJCMUVrXG5PMGpQNzJhak41aEdpY2VwL2xMVk9ReXB4WFFpUHZWOE1McW50V1lpNXZRL2x3VUZaMHBWYkp2RHZPNFZQaytqXG5uTkt6Ukl1OWVEUEFLYnJmc1pOQXZVcXQ4U2NLbUtHa2ZWUEtmLzBPTkNYWkdHYm5VT1hCVFNKN1hBOVBUU1pzXG5kZ0JnbWFhV1owaXhBQzZ2NjBkQ0lOcjhnam5OZ2JrUEZZL04vd0p6dGhFa2ZkV1A4c3ZPWC9LVStLblVDamo0XG4vQmk4Sk55T1VQekRZRDc5Q0RlZWhkWmx6TzlRckpMR3BkclQ0bnNLYXBPaTNxMzViV2JIZlNjdkRwOW9kWExMXG5zN1FhUXY0R0lBalVEZGhpc25Hb3pHbHFyMEpyM3VabkkxLzBGT21HUFIxdTdEdm9jdXp1dGRHNnBtYllwRERqXG5WVEZlRms1NmlOYWFJaEFDVWRrRERTUG5reHAyVXBrTWxxNUEvcDF1Qm5DV2VaWW10MFJkbElXZTVMa2MrY3pQXG5mRzk1cDMva3NOU1czeldQdVVUd25Ub1orNDdWK0tBdFlDNmdwNFd1dnRySW5xVkhLeGVFTURoUko4eWxmUXFzXG4vWDJiOE9WUVVadjJhak0wSDk5UnVNcVd4QzNSdDdxMis0TW94OTVuTWZSYUFpMk5PNzVIclNraXZUOUpYd3A2XG56YUlDdE43MzByS2F6OW9jMTNDdnVINVk1TS8wT1dHQ1RRSURBUUFCbzJBd1hqQWRCZ05WSFE0RUZnUVVIR1VLXG4rMjYrWGJkYkc1eWk2eW80aHlsSWlNNHdId1lEVlIwakJCZ3dGb0FVSEdVSysyNitYYmRiRzV5aTZ5bzRoeWxJXG5pTTR3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekFMQmdOVkhROEVCQU1DQVFZd0RRWUpLb1pJaHZjTkFRRUxCUUFEXG5nZ0lCQUNxSVBQdHlDVkZJM05LU1RaTUtXMHYvY3JxTmE5QXdXSHoyVjJuZDZpZVVzdk1yMDVFNDJCSW5nRzg5XG5WRytpcEpLQjZRNkZKaXJpNUhXV2Y0c1A0T1NIcmFkcTdKWUVRVDUveXRYRURESHN1ZGNZZHhzbkppb2RLblBMXG43dUtlUmVXTzV3YWJtYXpoRXAzZHhHN0xjVWNnbE1ubmVvUEFmSE5FeUNOc2JSNlU5NlBtRDUyY1hBR3ovcStjXG5mSGZlV09WYjZQelhNNXZCRU5wK1JHSmh2VGpQNjJSaTNuR1h0WVFhYW9LSEowWXd4MW4zWGZYZFNQaUdTOUd1XG4xalNtYnFDdS9sQWt3LzUraUZaWGgzUkkwZ2MzOWY2UXBlbTErdnhlekExYlB2RVYyMHY0M1hrS0N2bjRmWnF2XG5tQ0FHWHo5L2w3bXV5dFdMdk02NXZSMjZUS0hMeW9NWjgrdXZ4Mll4blB5N2dEVGgyd2YrUGRpd1g5Ry9xb0ZpXG5hbk10S3pQMWNpK2hGdTVFcnRkTXJMVmRMTTNneThkUllXMktlV1NrRHlvdkFPdGtzbDVxc3o4UFlLTGVJZFJEXG5tV3hSRUw1RlgzV3pRL3dJM1BReGZKL1ZTY0RXL2xDcWpsSjJQMjBYSVQrSCt6dzE0bGRsNnRmd3JFR2dmSGxGXG5PVzEvMzVsNnNXNExmVHNhWFVXd1lXUk1xTE00UjhQbDRMWFpOWEYyR2JsQ3M0blNmSHN4cTgwcG43SmhkVTFrXG5tbjByWlZCZTl5aGhOL05TMlg0cFZhNnhlZGpsVXRsNVJmaW02bWM2TENKMGdPQTNoRVVNejFGcFJkazlDRGdQXG51OVRCOTVBaDF2YlJjbWpmMDU4eWtSZ3ZtM25JRndFQ3NsczlqQ3N6YTJUWkU3elIifQ.H4NAoMUjkBPQb8g2cCzlEvjgiGB684QX3SDdBGcFn5o"
+        image:
+          liquibasetag: 2
+        secrets:
+          enabled: true
+          existingConfigs: qtest-manager-secret
+        env:
+          - name: LD_LIBRARY_PATH
+            value: $LD_LIBRARY_PATH:/opt/deepfactor/lib
+          - name: LD_PRELOAD
+            value: /opt/deepfactor/lib/libdf.so
+          - name: DF_MANIFEST
+            value: /opt/deepfactor/manifest/df-manifest.json
+        imageCredentials:
+          enabled: false
+        service:
+          type: NodePort
+          port: 8080
+          targetport: 8080
+        ingress:
+          enabled: true
+          ingressClassName: alb
+          hosts: 
+            - qtestdev1.container-dev.qtestdev.com
+            - nephele.qtestdev1.container-dev.qtestdev.com
+          annotations:
+            kubernetes.io/ingress.class: alb
+            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/target-type: ip
+            alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:242129367204:certificate/7267f31c-d515-401a-b61b-d1780879b763
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}, {"HTTP": 8080}, {"HTTPS": 8443}]'
+            alb.ingress.kubernetes.io/group.name: qtest-dev
+          canary:
+            annotationPrefix: alb.ingress.kubernetes.io
+          paths:
+            - /*
+        qTestManager:
+          clientJdbc:
+            postgresUrl: jdbc:postgresql://qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com/qtestk8s1
+            postgresUserName: postgres
+            postgresReadOnlyUrl: jdbc:postgresql://qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com/qtestk8s1
+            postgresReadOnlyUserName: postgres
+          elasticSearch:
+            init: false
+            disable: false
+            scheme: https
+            host: vpc-dev-dwinztwexo22gmmu4k5zocwtku.us-east-1.es.amazonaws.com
+            port: 443
+          blobStorage:
+            type: disk_storage
+            region: us-east-1
+            sharedBucket: ""
+          s3:
+            folder: qtest/manager
+            scanUrl: "https://clamav-13.container-dev.qtestdev.com"
+          base:
+            httpPort: 8080
+            httpsPort: 8080
+          preUrl: https://qtestdev1.container-dev.qtestdev.com
+          preUrlHttps: https://qtestdev1.container-dev.qtestdev.com
+          qasymphonyUrlPostfix: .qtestdev1.container-dev.qtestdev.com
+          preSessionUrl: https://session.container-dev.qtestdev.com
+          pulseUrlBase: https://pulse.container-dev.qtestdev.com
+          insightsUrl: https://insights.container-dev.qtestdev.com
+          launchUrlBase: https://launch.container-dev.qtestdev.com
+          qasDirectoryAddress: https://auth-13.container-dev.qtestdev.com
+          tdmSettingUrl: https://parameters.container-dev.qtestdev.com
+          notification:
+            urlExternal: https://notification-13.container-dev.qtestdev.com
+            urlInternal: https://notification-13.container-dev.qtestdev.com
+          report:
+            httpUrl: https://pentaho-13.container-dev.qtestdev.com/pentaho
+            url: https://pentaho-13.container-dev.qtestdev.com/pentaho
+          qTest:
+            serverMapUrl: https://qtest.qtestnet.com/public/jira-widget/server-map
+          mail:
+            host: email-smtp.us-east-1.amazonaws.com
+            port: 465
+            userName: AKIATQYAI6CSGFUSOCE5
+            protocol: smtp
+            smtpAuth: true
+            smtpTls: false
+            supportEmailAddress: qas_devops@tricentis.com
+        persistence:
+          enabled: true
+          existingClaim: qtest-mgr-pvc
+          storageClass: qtest-mgr-sc
+        chaos:
+          enabled: false
+        workflow:
+          enabled: false
+          adminModeNamespace: litmus
+          serviceAccountName: argo-chaos
+          annotations:
+            argocd.argoproj.io/hook: PostSync
+          postman:
+            repo: https://git.qasymphony.com/qtest/qtest-postman.git
+            image: public.ecr.aws/b8y7a2x6/argo-agent:ubuntu.2
+        metrics:
+          enabled: false
+          prometheus:
+            address: "http://a0179abbebc504fe1a02cc2868d10d20-1436141555.us-east-2.elb.amazonaws.com:9090/"
+            query: rate(nginx_ingress_controller_requests{ingress="mgr-ingress", controller_class="nginx",exported_namespace="qtest",status=~"[2].*"}[1h])

@@ -1,0 +1,75 @@
+# Default values for apps.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+# https://argoproj.github.io/argo-cd/operator-manual/application.yaml
+
+# change with caution
+project: 'default'
+# namespace: 'argocd'
+
+annotations:
+  notifications.argoproj.io/subscribe.on-sync-succeeded.slack: argo-notification-tests
+  notifications.argoproj.io/subscribe.on-sync-status-unknown.slack: argo-notification-tests
+  notifications.argoproj.io/subscribe.on-sync-failed.slack: argo-notification-tests
+  notifications.argoproj.io/subscribe.on-health-degraded.slack: argo-notification-tests
+  notifications.argoproj.io/subscribe.on-deployed.slack: argo-notification-tests
+
+qtest:
+  repo: 'https://github.com/QAS-Labs/qtest-chart.git'
+  chart: 'https://qas-labs.github.io/qtest-chart/'
+
+#ConfigMap and Secret resources in this directory
+# common: .common
+
+# these are cluster addresses examples
+clusters:
+  stage: https://kubernetes.default.svc
+  prod1: 'https://myakscluster-a5a0451f.hcp.eastus.azmk8s.io:443'
+
+# groups describe deployment clusters of each app in Argo CD Projects
+groups:
+  stage: ['stage']
+  prod: ['prod-1']
+
+# this is where we specify each app's configuration and destination
+applications:
+  eksdev1:
+    path: Charts/qtest-chart
+    target: "*"
+    namespace: qtest
+    chart: qtest-chart
+  eksdev2:
+    path: Charts/qtest-chart
+    target: "*"
+    namespace: qtest
+    chart: qtest-chart
+  qtestinsightsdev:
+    path: Charts/qtest-insights
+    target: "*"
+    namespace: qtest-insights
+    chart: qtest-insights
+  qtestlaunchdev:
+    path: Charts/qtest-launch
+    target: "*"
+    namespace: qtest-launch
+    chart: qtest-launch
+  qtestsessiondev:
+    path: Charts/qtest-session
+    target: "*"
+    namespace: qtest-session
+    chart: qtest-session
+  qtestpulsedev:
+    path: Charts/qtest-pulse
+    target: "*"
+    namespace: qtest-pulse
+    chart: qtest-pulse
+  qtestscenariodev:
+    path: Charts/qtest-scenario
+    target: "*"
+    namespace: qtest-scenario
+    chart: qtest-scenario
+  qtestparametersdev:
+    path: Charts/qtest-parameters
+    target: "*"
+    namespace: qtest-parameters
+    chart: qtest-parameters

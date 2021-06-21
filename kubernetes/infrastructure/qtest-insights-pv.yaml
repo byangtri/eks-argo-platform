@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qtest-insights-pv
+  namespace: qtest
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: qtest-mgr-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: fs-3c008588

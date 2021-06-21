@@ -1,0 +1,12 @@
+apiVersion: "kubernetes-client.io/v1"
+kind: ExternalSecret
+metadata:
+  name: gitlab-creds
+  namespace: litmus
+spec:
+  backendType: secretsManager
+  data:
+    - key: gitlab-creds-username
+      name: username
+    - key: gitlab-creds-password
+      name: password

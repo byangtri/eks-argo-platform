@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: qtest-mgr-pvc
+  namespace: qtest
+  labels:
+    app: qtest-mgr
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: qtest-mgr-sc

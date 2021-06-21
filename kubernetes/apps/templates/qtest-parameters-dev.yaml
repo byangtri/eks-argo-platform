@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: qtest-parameters-dev
+  namespace: argocd
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: {{ .Values.applications.qtestparametersdev.namespace }}
+    server: {{ .Values.clusters.stage }}
+  project: {{ .Values.project }}
+  source:
+    chart: {{ .Values.applications.qtestparametersdev.chart }}
+    repoURL: {{ .Values.qtest.chart }}
+    targetRevision: "*"
+    helm:
+      values: |
+        service:
+          type: ClusterIP
+          port: 5080
+          targetport: 5080
+        ingress:
+          enabled: true
+          hosts:
+            - parameters.container-dev.qtestdev.com
+          annotations:
+            kubernetes.io/ingress.class: alb
+            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/target-type: ip
+            alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:242129367204:certificate/7267f31c-d515-401a-b61b-d1780879b763
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+            alb.ingress.kubernetes.io/group.name: qtest-dev
+          paths:
+            - /*
+        qTestParameters:
+          qTestParametersPGUrl: postgresql://postgres:RW9dSqzC6!d!7!ED@qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com/parameters
+          qTestParametersQTestHost: https://qtestdev1.container-dev.qtestdev.com
+          qTestParametersNodeTLSRejectUnAuthorized: "0"
+          qTestParametersNodeEnv: production
+          qTestParametersPort: 5080
+        autoscaling:
+          enabled: false

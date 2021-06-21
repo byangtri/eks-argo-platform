@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app.kubernetes.io/instance: argoproj
+  name: chaosexperiments
+  namespace: argocd
+spec:
+  destination:
+    namespace: litmus
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    path: kubernetes/chaosexperiment
+    repoURL: 'https://github.com/QAS-Labs/aws-qtest-k8.git'
+    targetRevision: main

@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: qtest-launch-dev
+  namespace: argocd
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: {{ .Values.applications.qtestlaunchdev.namespace }}
+    server: {{ .Values.clusters.stage }}
+  project: {{ .Values.project }}
+  source:
+    chart: {{ .Values.applications.qtestlaunchdev.chart }}
+    repoURL: {{ .Values.qtest.chart }}
+    targetRevision: "*"
+    helm:
+      values: |
+        service:
+          type: NodePort
+          port: 3080
+          targetport: 3080
+        qTestLaunch:
+          qTestLaunchPostgresUrl: postgresql://postgres:RW9dSqzC6!d!7!ED@qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com/qtestk8s
+          qTestLaunchRootURL: https://launch.container-dev.qtestdev.com
+          qTestLaunchQTestURL: https://qtestdev1.container-dev.qtestdev.com
+          qTestLaunchNodeTLSRejectUnAuthorized: "0"
+          qTestLaunchTCPWD: "qTest"
+          qTestLaunchPort: "3080"
+        ingress:
+          enabled: true
+          annotations:
+            kubernetes.io/ingress.class: alb
+            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/target-type: ip
+            alb.ingress.kubernetes.io/certificate-arn: 	arn:aws:acm:us-east-1:242129367204:certificate/7267f31c-d515-401a-b61b-d1780879b763
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+            alb.ingress.kubernetes.io/group.name: qtest-dev
+          canary:
+            annotations: {}
+          labels: {}
+          hosts:
+            - launch.container-dev.qtestdev.com
+          paths:
+            - /*
+          extraPaths:
+            []
+          tls:
+            []
+          https: false
+        autoscaling:
+          enabled: false
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true

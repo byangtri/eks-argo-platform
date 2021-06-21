@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: alb-controller
+  namespace: argocd
+spec:
+  destination:
+    namespace: kube-system
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    chart: aws-load-balancer-controller
+    repoURL: 'https://aws.github.io/eks-charts'
+    targetRevision: "*"
+    helm:
+      values: |
+        clusterName: qtest-pilot
+        serviceAccount:
+          create: false
+          name: aws-load-balancer-controller
+        region: us-east-1
+        vpcId: vpc-0b268e00e4e7d35b3

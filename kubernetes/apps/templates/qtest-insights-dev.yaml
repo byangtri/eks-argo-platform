@@ -1,0 +1,67 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: qtest-insights-dev
+  namespace: argocd
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: {{ .Values.applications.qtestinsightsdev.namespace }}
+    server: {{ .Values.clusters.stage }}
+  project: {{ .Values.project }}
+  source:
+    chart: {{ .Values.applications.qtestinsightsdev.chart }}
+    repoURL: {{ .Values.qtest.chart }}
+    targetRevision: "*"
+    helm:
+      values: |
+        service:
+          type: ClusterIP
+          port: 8080
+          targetport: 8080
+        ingress:
+          enabled: true
+          hosts:
+            - insights.container-dev.qtestdev.com
+          annotations:
+            kubernetes.io/ingress.class: alb
+            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/target-type: ip
+            alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:242129367204:certificate/7267f31c-d515-401a-b61b-d1780879b763
+            alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+            alb.ingress.kubernetes.io/group.name: qtest-dev
+          paths:
+            - /*
+        qTestInsights:
+          qTestInsightsProxyEnabled: 1
+          qTestInsightsProxyHTTP: http://127.0.0.1:8080/
+          qTestInsightsProxyHTTPS: https://127.0.0.1:8443/
+          qTestInsightsCatalinaOpts: \"-server -d64 -Xms512m -Xmx2048m -XX:MaxPermSize=256m -XX:CompileThreshold=8000 -XX:-DisableExplicitGC -XX:HeapDumpPath=/logs -Djava.awt.headless=true\"
+          qTestInsightsDBName: qtestk8s
+          qTestInsightsDBUser: postgres
+          qTestInsightsDBPassword: Ulc5ZFNxekM2IWQhNyFFRA==
+          qTestInsightsDBHost: qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com
+          qTestInsightsWriteQTestDBName: qtestk8s
+          qTestInsightsWriteQTestDBUser: postgres
+          qTestInsightsWriteQTestDBPassword: Ulc5ZFNxekM2IWQhNyFFRA==
+          qTestInsightsWriteQTestDBHost: qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com
+          qTestInsightsSessionDBName: sessions
+          qTestInsightsSessionDBUser: postgres
+          qTestInsightsSessionDBPassword: Ulc5ZFNxekM2IWQhNyFFRA==
+          qTestInsightsSessionDBHost: qtestproduction.ckial7bswutk.us-east-1.rds.amazonaws.com
+          qTestInsightsCSRFAllowPattern: \"$insights_security_csrf_trusted_source_pattern\"
+        persistence:
+          enabled: false
+          storageClass: qtest-mgr-sc
+          accessMode: ReadWriteOnce
+          size: 5Gi
+        autoscaling:
+          enabled: false
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
