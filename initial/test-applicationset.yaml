@@ -12,8 +12,6 @@ metadata:
 spec:
   generators:
   - clusters: {}
-      values:
-        project: default
   template:
     metadata:
       name: '{{name}}-guestbook'
