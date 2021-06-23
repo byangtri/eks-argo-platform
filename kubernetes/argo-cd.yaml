@@ -78,3 +78,20 @@ spec:
             periodSeconds: 15
             successThreshold: 1
             timeoutSeconds: 1
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: applicationset
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    chart: argocd-applicationset
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: "*"
