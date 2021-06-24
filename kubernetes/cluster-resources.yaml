@@ -57,7 +57,7 @@ spec:
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       revision: applicationset
       directories:
-      - path: examples/git-generator-directory/cluster-addons/*
+      - path: kubernetes/cluster-addons/*
   template:
     metadata:
       name: '{{path.basename}}'
