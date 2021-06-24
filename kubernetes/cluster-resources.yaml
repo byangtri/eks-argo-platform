@@ -39,7 +39,7 @@ spec:
       source:
         path: kubernetes/cluster-resources/{{name}}
         repoURL: https://github.com/byangtri/eks-argo-platform.git
-        targetRevision: HEAD
+        targetRevision: applicationset
       syncPolicy:
         automated:
           allowEmpty: true
@@ -54,8 +54,8 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/argoproj-labs/applicationset.git
-      revision: HEAD
+      repoURL: https://github.com/byangtri/eks-argo-platform.git
+      revision: applicationset
       directories:
       - path: examples/git-generator-directory/cluster-addons/*
   template:
@@ -64,8 +64,8 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/argoproj-labs/applicationset.git
-        targetRevision: HEAD
+        repoURL: https://github.com/byangtri/eks-argo-platform.git
+        targetRevision: applicationset
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
