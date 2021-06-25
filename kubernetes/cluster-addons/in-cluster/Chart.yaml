@@ -1,0 +1,9 @@
+apiVersion: v2
+name: argo-workflows
+description: A Helm chart for Argo Workflows
+type: application
+version: 0.0.1
+dependencies:
+- name: argo-workflows
+  repository: https://argoproj.github.io/argo-helm
+  version: 0.2.5
