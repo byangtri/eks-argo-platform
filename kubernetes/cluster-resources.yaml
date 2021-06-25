@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  annotations:
+  # annotations:
     # argocd.argoproj.io/sync-wave: "0"
   name: cluster-resources
   namespace: argocd
