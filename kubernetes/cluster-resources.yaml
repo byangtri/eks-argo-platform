@@ -1,8 +1,8 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  # annotations:
-    # argocd.argoproj.io/sync-wave: "0"
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
   name: cluster-resources
   namespace: argocd
 spec:
@@ -11,15 +11,15 @@ spec:
       files:
       - path: kubernetes/cluster-resources/*.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
-      # requeueAfterSeconds: 20
-      # revision: ""
-      # template:
-      #   metadata: {}
-      #   spec:
-      #     destination: {}
-      #     project: ""
-      #     source:
-      #       repoURL: ""
+      requeueAfterSeconds: 20
+      revision: applicationset
+      template:
+        metadata: {}
+        spec:
+          destination: {}
+          project: ""
+          source:
+            repoURL: ""
   template:
     metadata:
       labels:
