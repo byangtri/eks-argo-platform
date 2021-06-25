@@ -54,7 +54,7 @@ spec:
   generators:
   - git:
       files:
-      - path: kubernetes/cluster-addons/**/config.json
+      - path: kubernetes/cluster-addons/*/config.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       revision: applicationset
       directories:
