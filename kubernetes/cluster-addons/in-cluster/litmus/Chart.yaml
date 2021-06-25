@@ -6,4 +6,4 @@ version: 0.0.1
 dependencies:
 - name: litmus
   repository: https://litmuschaos.github.io/litmus-helm
-  version: 1.15.0
+  version: "*"
