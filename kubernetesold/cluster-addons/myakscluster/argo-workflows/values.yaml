@@ -1,2 +1,0 @@
-controller:
-  containerRuntimeExecutor: k8sapi
