@@ -1,0 +1,8 @@
+apiVersion: v2
+name: qtest-mgr
+type: application
+version: 0.0.1
+dependencies:
+- name: qtest-chart
+  repository: https://qas-labs.github.io/qtest-chart
+  version: "*"

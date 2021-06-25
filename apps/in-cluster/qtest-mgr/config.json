@@ -1,0 +1,1 @@
+{"namespace":"qtest","path":"apps/in-cluster/qtest-mgr",  "server":"https://kubernetes.default.svc", "name":"in-cluster-qtest-mgr"}

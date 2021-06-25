@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: in-cluster-qtest-apps
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      files:
+      - path: apps/in-cluster/*/config.json
+      repoURL: https://github.com/byangtri/eks-argo-platform.git
+      revision: applicationset
+  template:
+    metadata:
+      name: '{{ name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/byangtri/eks-argo-platform.git
+        targetRevision: applicationset
+        path: '{{ path }}'
+      destination:
+        server: '{{ server }}'
+        namespace: '{{ namespace }}'
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: myakscluster-qtest-apps
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      files:
+      - path: apps/myakscluster/*/config.json
+      repoURL: https://github.com/byangtri/eks-argo-platform.git
+      revision: applicationset
+  template:
+    metadata:
+      name: '{{ name }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/byangtri/eks-argo-platform.git
+        targetRevision: applicationset
+        path: '{{ path }}'
+      destination:
+        server: '{{ server }}'
+        namespace: '{{ namespace }}'
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+---

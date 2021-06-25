@@ -1,0 +1,1 @@
+{"namespace":"argo","path":"bootstrap/cluster-addons/in-cluster/argo-workflows",  "server":"https://kubernetes.default.svc", "name":"in-cluster-argo-workflows"}

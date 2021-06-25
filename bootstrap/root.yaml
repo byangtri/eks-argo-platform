@@ -4,9 +4,6 @@ metadata:
   creationTimestamp: null
   finalizers:
   - resources-finalizer.argocd.argoproj.io
-  labels:
-    app.kubernetes.io/managed-by: argo-autopilot
-    app.kubernetes.io/name: root
   name: root
   namespace: argocd
 spec:
@@ -29,12 +26,3 @@ spec:
       selfHeal: true
     syncOptions:
     - allowEmpty=true
-status:
-  health: {}
-  summary: {}
-  sync:
-    comparedTo:
-      destination: {}
-      source:
-        repoURL: ""
-    status: ""
