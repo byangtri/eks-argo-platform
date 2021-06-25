@@ -61,13 +61,13 @@ spec:
       # - path: kubernetes/cluster-addons/*
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{ basename }}'
     spec:
       project: default
       source:
         repoURL: https://github.com/byangtri/eks-argo-platform.git
         targetRevision: applicationset
-        path: '{{path}}'
+        path: '{{ path }}'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{ namespace }}'
