@@ -1,1 +1,1 @@
-{"namespace":"argo","path":"kubernetes/cluster-addons/in-cluster/argo-workflows", "basename":"argo-workflow", "server":"https://kubernetes.default.svc", "name":"in-cluster"}
+{"namespace":"argo","path":"kubernetes/cluster-addons/in-cluster/argo-workflows",  "server":"https://kubernetes.default.svc", "name":"in-cluster-argo-workflows"}
