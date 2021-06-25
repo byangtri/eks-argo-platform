@@ -9,7 +9,7 @@ spec:
   generators:
   - git:
       files:
-      - path: kubernetes/cluster-resources/*.json
+      - path: bootstrap/cluster-resources/*.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       requeueAfterSeconds: 20
       revision: applicationset
@@ -36,7 +36,7 @@ spec:
         kind: Application
       project: default
       source:
-        path: kubernetes/cluster-resources/{{name}}
+        path: bootstrap/cluster-resources/{{name}}
         repoURL: https://github.com/byangtri/eks-argo-platform.git
         targetRevision: applicationset
       syncPolicy:
@@ -54,7 +54,7 @@ spec:
   generators:
   - git:
       files:
-      - path: kubernetes/cluster-addons/myakscluster/*/config.json
+      - path: bootstrap/cluster-addons/myakscluster/*/config.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       revision: applicationset
   template:
@@ -82,7 +82,7 @@ spec:
   generators:
   - git:
       files:
-      - path: kubernetes/cluster-addons/in-cluster/*/config.json
+      - path: bootstrap/cluster-addons/in-cluster/*/config.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       revision: applicationset
   template:
