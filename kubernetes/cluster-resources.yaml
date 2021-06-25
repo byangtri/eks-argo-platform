@@ -61,7 +61,7 @@ spec:
       # - path: kubernetes/cluster-addons/*
   template:
     metadata:
-      name: '{{ basename }}'
+      name: '{{ name }}'
     spec:
       project: default
       source:
