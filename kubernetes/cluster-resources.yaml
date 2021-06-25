@@ -48,13 +48,40 @@ status: {}
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: cluster-addons
+  name: myakscluster-addons
   namespace: argocd
 spec:
   generators:
   - git:
       files:
-      - path: kubernetes/cluster-addons/**/config.json
+      - path: kubernetes/cluster-addons/myakscluster/*/config.json
+      repoURL: https://github.com/byangtri/eks-argo-platform.git
+      revision: applicationset
+      # directories:
+      # - path: kubernetes/cluster-addons/*
+  template:
+    metadata:
+      name: '{{ basename }}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/byangtri/eks-argo-platform.git
+        targetRevision: applicationset
+        path: '{{ path }}'
+      destination:
+        server: '{{ server }}'
+        namespace: '{{ namespace }}'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: in-cluster-addons
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      files:
+      - path: kubernetes/cluster-addons/in-cluster/*/config.json
       repoURL: https://github.com/byangtri/eks-argo-platform.git
       revision: applicationset
       # directories:
